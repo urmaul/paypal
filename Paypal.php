@@ -186,6 +186,7 @@ class Paypal extends CApplicationComponent
      * @param array $params payment params
      * @return string payment key
      * @throws PaypalException
+     * @see pay
      */
     public function systemPay(array $params)
     {

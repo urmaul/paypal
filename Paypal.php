@@ -87,14 +87,14 @@ class Paypal extends CApplicationComponent
         }
     }
     
-    /* Getters */
+    # Getters #
     
     public function getPayLink($payKey)
     {
         return sprintf($this->apRedirectUrl, $this->weburl, '_ap-payment', $payKey);
     }
     
-    /* Express checkout */
+    # Express checkout #
     
     /**
      * Makes express checkout request
@@ -179,7 +179,7 @@ class Paypal extends CApplicationComponent
         }
     }
     
-    /* Adaptive payments */
+    # Adaptive payments #
     
     /**
      * Performs a payment from system account 
@@ -295,7 +295,7 @@ class Paypal extends CApplicationComponent
         return $response;
     }
     
-    /* API Permissions */
+    # API Permissions #
     
     /**
      * Request permissions api
@@ -359,7 +359,7 @@ class Paypal extends CApplicationComponent
         return $response['response_personalData(0)_personalDataValue'];
     }
     
-    /* Invoices */
+    # Invoices #
     
     public function sendInvoice($invoice){
         $url = 'Invoice/CreateAndSendInvoice';
@@ -424,7 +424,7 @@ class Paypal extends CApplicationComponent
         }
     }
     
-    /* Calls */
+    # Calls #
     
     public function callNVP($methodName, $params = array())
     {
@@ -575,7 +575,7 @@ class Paypal extends CApplicationComponent
     }
     
     
-    /* Private methods */
+    # Private methods #
     
     /**
      * Returns field array
@@ -643,7 +643,7 @@ class Paypal extends CApplicationComponent
     
 }
 
-/* Exceptions */
+# Exceptions #
 
 class PaypalException extends CException {}
 

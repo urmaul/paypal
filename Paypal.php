@@ -488,12 +488,15 @@ class Paypal extends CApplicationComponent
             'X-PAYPAL-SECURITY-USERID: '    . $this->username,
             'X-PAYPAL-SECURITY-PASSWORD: '  . $this->password,
             'X-PAYPAL-SECURITY-SIGNATURE: ' . $this->signature,
-            'X-PAYPAL-DEVICE-IPADDRESS: '   . $_SERVER['REMOTE_ADDR'],
             'X-PAYPAL-REQUEST-DATA-FORMAT: '  . 'NV',
             'X-PAYPAL-RESPONSE-DATA-FORMAT: ' . 'NV',
             'X-PAYPAL-APPLICATION-ID: ' . $this->appid,
             //'X-PAYPAL-SERVICE-VERSION: 1.3.0',
         );
+        
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $headers[] = 'X-PAYPAL-DEVICE-IPADDRESS: '   . $_SERVER['REMOTE_ADDR'];
+        }
         
         //setting the curl parameters.
         $ch = curl_init();

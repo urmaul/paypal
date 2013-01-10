@@ -470,9 +470,9 @@ class Paypal extends CApplicationComponent
         
         parse_str($responseStr, $response);
         
+        Yii::trace('Parsed Response: ' . var_export($response, true), __METHOD__);
+        
         if ($response['responseEnvelope_ack'] == 'Success') {
-            Yii::trace('Parsed Response: ' . var_export($response, true), __METHOD__);
-            
             return $response;
             
         } else {
@@ -495,7 +495,7 @@ class Paypal extends CApplicationComponent
         );
         
         if (isset($_SERVER['REMOTE_ADDR'])) {
-            $headers[] = 'X-PAYPAL-DEVICE-IPADDRESS: '   . $_SERVER['REMOTE_ADDR'];
+            $headers[] = 'X-PAYPAL-DEVICE-IPADDRESS: ' . $_SERVER['REMOTE_ADDR'];
         }
         
         //setting the curl parameters.

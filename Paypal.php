@@ -237,8 +237,6 @@ class Paypal extends CApplicationComponent
     public function pay(array $params)
     {
         $defParams = array(
-            'requestEnvelope.detailLevel' => 'ReturnAll',
-            'requestEnvelope.errorLanguage' => $this->language,
             'currencyCode' => $this->currencyCode,
         	'actionType' => 'PAY',
         );
@@ -258,8 +256,6 @@ class Paypal extends CApplicationComponent
     public function paymentDetails($payKey)
     {
         $params = array(
-            'requestEnvelope.detailLevel' => 'ReturnAll',
-            'requestEnvelope.errorLanguage' => $this->language,
         	'currencyCode' => $this->currencyCode,
         	'payKey' => $payKey,
         );
@@ -278,8 +274,6 @@ class Paypal extends CApplicationComponent
     public function refund($payKey)
     {
         $params = array(
-            'requestEnvelope.detailLevel' => 'ReturnAll',
-            'requestEnvelope.errorLanguage' => $this->language,
             'currencyCode' => $this->currencyCode,
             'payKey' => $payKey,
         );
@@ -307,8 +301,6 @@ class Paypal extends CApplicationComponent
     public function requestPermissions($callback)
     {
         $params = array(
-            'requestEnvelope.detailLevel' => 'ReturnAll',
-            'requestEnvelope.errorLanguage' => $this->language,
         	'scope' => $this->permissions,
         	'callback' => $callback,
         );
@@ -330,7 +322,6 @@ class Paypal extends CApplicationComponent
     public function getAccessToken($requestToken, $verificationCode)
     {
         $params = array(
-            'requestEnvelope.errorLanguage' => $this->language,
         	'token' => $requestToken,
         	'verifier' => $verificationCode,
         );
@@ -351,7 +342,6 @@ class Paypal extends CApplicationComponent
     public function getEmail()
     {
         $params = array(
-            'requestEnvelope.errorLanguage' => $this->language,
             'attributeList.attribute(0)' => 'http://axschema.org/contact/email',
         );
         
@@ -365,7 +355,6 @@ class Paypal extends CApplicationComponent
     public function sendInvoice($invoice){
         $url = 'Invoice/CreateAndSendInvoice';
         $params = array(
-            "requestEnvelope.errorLanguage"=>"en_US",
             "invoice.merchantEmail"=>$this->email,
             "invoice.payerEmail"=>$invoice->User->email,//$invoice->Restaurant->paypal_email,
             "invoice.currencyCode"=>$this->currencyCode,
@@ -389,7 +378,6 @@ class Paypal extends CApplicationComponent
     public function cancelInvoice($invoice){
         $url = 'Invoice/CancelInvoice';
         $params = array(
-            "requestEnvelope.errorLanguage"=>"en_US",
             "invoiceID"=>$invoice->invoiceID,
             "noteForPayer"=>"Invoice cancelled",
             "sendCopyToMerchant"=>true,
@@ -453,6 +441,12 @@ class Paypal extends CApplicationComponent
     
     public function callSVCS($name, $params = array())
     {
+        $defParams = array(
+            'requestEnvelope.detailLevel' => 'ReturnAll',
+            'requestEnvelope.errorLanguage' => $this->language,
+        );
+        $params = array_merge($defParams, $params);
+
         //$postStr = http_build_query($params);
         
         $postParams = array();

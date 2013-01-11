@@ -99,7 +99,8 @@ class Paypal extends CApplicationComponent
     /**
      * Makes express checkout request
      * @param array $params Array with PayPal API params
-     * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
+     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/setexpresscheckout-api-operation-nvp
      * @return string redirect url
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
@@ -128,6 +129,7 @@ class Paypal extends CApplicationComponent
     /**
      * Gets express checkout details
      * @param string $token
+     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_GetExpressCheckoutDetails
      * @return array checkout details
      * @throws PaypalHTTPException
@@ -152,6 +154,7 @@ class Paypal extends CApplicationComponent
     /**
      * Makes express checkout payment
      * @param array $details Checkout details returned by getExpressCheckoutDetails
+     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_DoExpressCheckoutPayment
      * @return array checkout result
      * @throws PaypalHTTPException

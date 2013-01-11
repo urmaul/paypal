@@ -352,18 +352,10 @@ class Paypal extends CApplicationComponent
     
     # Invoices #
     
-    public function sendInvoice($invoice){
+    public function sendInvoice($params)
+    {
         $url = 'Invoice/CreateAndSendInvoice';
-        $params = array(
-            "invoice.merchantEmail"=>$this->email,
-            "invoice.payerEmail"=>$invoice->User->email,//$invoice->Restaurant->paypal_email,
-            "invoice.currencyCode"=>$this->currencyCode,
-            "invoice.itemList.item(0).name"=>"reservation order",
-            "invoice.itemList.item(0).date"=>date("Y-m-d\TH:i:sP", strtotime($invoice->event_date)),
-            "invoice.itemList.item(0).quantity"=>1,
-            "invoice.itemList.item(0).unitPrice"=>$invoice->fee_amount,
-            "invoice.paymentTerms"=>"Net10" 
-        );        
+
         // Generating post string
         //$postStr = http_build_query($params);
         $response = $this->callSVCS($url, $params);
@@ -375,12 +367,11 @@ class Paypal extends CApplicationComponent
         }
     }
     
-    public function cancelInvoice($invoice){
+    public function cancelInvoice($params)
+    {
         $url = 'Invoice/CancelInvoice';
-        $params = array(
-            "invoiceID"=>$invoice->invoiceID,
-            "noteForPayer"=>"Invoice cancelled",
-            "sendCopyToMerchant"=>true,
+        $params += array(
+            'sendCopyToMerchant' => true,
         );
                 
         // Generating post string
@@ -394,13 +385,9 @@ class Paypal extends CApplicationComponent
         }
     }
     
-	public function checkInvoice($invoice){
+	public function checkInvoice($params)
+    {
         $url = 'Invoice/GetInvoiceDetails';
-        $params = array(
-            "requestEnvelope.errorLanguage"=>"en_US",
-            "requestEnvelope.detailLevel"=>"ReturnAll",
-            "invoiceID"=>$invoice->invoiceID
-        );
                 
         // Generating post string
         //$postStr = http_build_query($params);

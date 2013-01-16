@@ -300,6 +300,7 @@ class Paypal extends CApplicationComponent
      * @param string $callback
      * @return string redirect url
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_PermissionsRequestPermissionsAPI
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/requestpermissions-api-operation RequestPermissions API Operation
      */
     public function requestPermissions($callback)
     {
@@ -321,6 +322,7 @@ class Paypal extends CApplicationComponent
      * @param string $verificationCode field "verification_code" from the callback query
      * @return array paypal responce
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_PermissionsGetAccessTokenAPI
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/getaccesstoken-api-operation GetAccessToken API Operation
      */
     public function getAccessToken($requestToken, $verificationCode)
     {
@@ -341,6 +343,7 @@ class Paypal extends CApplicationComponent
      * GetBasicPersonalData API Operation
      * @return array paypal email
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_PermissionsGetBasicPersonalDataAPI
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/getbasicpersonaldata-api-operation
      */
     public function getEmail()
     {

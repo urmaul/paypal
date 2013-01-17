@@ -112,13 +112,13 @@ class Paypal extends CApplicationComponent
  	 */
     public function setExpressCheckout(array $params)
     {
-        $defParams = array(
+        $params += array(
             'METHOD' => 'SetExpressCheckout',
+            'ALLOWNOTE' => 0,
             'REQCONFIRMSHIPPING' => 0,
             'NOSHIPPING' => 1,
-            'CANCELURL' => $this->createCancelUrl
+            'CANCELURL' => $this->cancelUrl,
         );
-        $params = array_merge($defParams, $params);
         
         $response = $this->callNVP('SetExpressCheckout', $params);
         
@@ -149,9 +149,11 @@ class Paypal extends CApplicationComponent
     /**
      * Makes express checkout payment
      * @param array $details Checkout details returned by getExpressCheckoutDetails
-     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_DoExpressCheckoutPayment
-     * @return array checkout result
+     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout Express Checkout API Getting Started Guide
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/doexpresscheckoutpayment-api-operation-nvp DoExpressCheckoutPayment API Operation
+     * @return array payment result
+     * You need to check element 'success' (boolean) to ensure payment was successful.
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
  	 */
@@ -172,15 +174,18 @@ class Paypal extends CApplicationComponent
     }
     
     /**
-     * Checks payment result
+     * Checks payment result token
      * @param array $params paypal request params
-     * @return mixed saving data array or false
+     * @return mixed saved data array or false
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
      */
-    public function checkResult($token)
+    public function checkExpressCheckoutToken($token)
     {
         $requestData = $this->_loadRequest();
         
-        if ($token == @$requestData['token']) {
+        if ($token === @$requestData['token']) {
+            Yii::trace(sprintf('Tokens are equal (%s)', $token), __CLASS__);
             $this->_clearRequest();
             return $requestData['data'];
             
@@ -189,7 +194,32 @@ class Paypal extends CApplicationComponent
             return false;
         }
     }
-
+    
+    /**
+     * This function makes full path to finish [express checkout] payment.
+     * 1. Checks for "token" ans "PayerID" GET parameters (Paypal adds them to successUrl).
+     * 2. Compares token with token saved to session
+     * 3. Calls "DoExpressCheckoutPayment" to finish payment
+     * 
+     * @return array|boolean payment result or false
+     * When this method returns "false" - you can be sure that payment didn't started.
+     * When this method returns array, you need to check element 'success' (boolean) to ensure payment was successful.
+     * Result array has element "detalis" with "GetExpressCheckoutDetails" result.
+     */
+    public function finishExpressCheckoutPayment()
+    {
+        if (isset($_GET['token'], $_GET['PayerID'])) {
+            $token = $_GET['token'];
+            if ($this->checkExpressCheckoutToken($token) !== false) {
+                $details = Yii::app()->paypal->getExpressCheckoutDetails($token);
+                $result = $this->doExpressCheckoutPayment($details);
+                $result['details'] = $details;
+                return $result;
+            }
+        }
+        
+        return false;
+    }
     
     # Adaptive payments #
     
@@ -604,6 +634,13 @@ class Paypal extends CApplicationComponent
         return $resp;
     }
     
+    /**
+     * 
+     * @param array $data responce array
+     * @param string $tpl sprintf template to generate field names
+     * @param array $valid value variants
+     * @return boolean
+     */
     private function _checkFieldArray($data, $tpl, $valid)
     {
         if (!is_array($valid))

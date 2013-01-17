@@ -2,6 +2,8 @@
 
 class Paypal extends CApplicationComponent
 {
+    # Paypal user credentials #
+    
     public $email;
     public $username;
     public $password;
@@ -11,6 +13,8 @@ class Paypal extends CApplicationComponent
     public $apiurl  = 'https://api-3t.paypal.com/nvp';
     public $svcsUrl = 'https://svcs.paypal.com/%s';
     public $weburl  = 'https://www.paypal.com/webscr';
+    
+    # Paypal default settings #
     
     /**
      * Default language
@@ -34,6 +38,10 @@ class Paypal extends CApplicationComponent
      */
     public $permissions;
     
+    /**
+     * Sandbox mode
+     * @var boolean
+     */
     public $sandbox = false;
     
     /**
@@ -68,25 +76,6 @@ class Paypal extends CApplicationComponent
         }
     }
     
-    /**
-     * Checks payment result
-     * @param array $params paypal request params
-     * @return mixed saving data array or false
-     */
-    public function checkResult($token)
-    {
-        $requestData = $this->_loadRequest();
-        
-        if ($token == @$requestData['token']) {
-            $this->_clearRequest();
-            return $requestData['data'];
-            
-        } else {
-        	Yii::trace(sprintf('Tokens "%s" and "%s" are not equal', $token, @$requestData['token']), __CLASS__);
-            return false;
-        }
-    }
-    
     # Getters #
     
     public function getPayLink($payKey)
@@ -115,15 +104,10 @@ class Paypal extends CApplicationComponent
         
         $response = $this->callNVP('SetExpressCheckout', $params);
         
-        if ($response['ACK'] == 'Success') {
-            $this->_saveRequest($response['TOKEN']);
+        $this->_saveRequest($response['TOKEN']);
 
-            $url = sprintf($this->url, $this->weburl, '_express-checkout', $response['TOKEN']);
-            return $url;
-            
-        } else {
-            throw new PaypalNVPResponseException($response);
-        }
+        $url = sprintf($this->url, $this->weburl, '_express-checkout', $response['TOKEN']);
+        return $url;
     }
     
     /**
@@ -141,14 +125,7 @@ class Paypal extends CApplicationComponent
             'TOKEN' => $token,
         );
         
-        $response = $this->callNVP('GetExpressCheckoutDetails', $params);
-        
-        if ($response['ACK'] == 'Success') {
-            return $response;
-            
-        } else {
-            throw new PaypalNVPResponseException($response);
-        }
+        return $this->callNVP('GetExpressCheckoutDetails', $params);
     }
     
     /**
@@ -166,21 +143,35 @@ class Paypal extends CApplicationComponent
         
         $response = $this->callNVP('DoExpressCheckoutPayment', $params);
         
-        if ($response['ACK'] == 'Success') {
-            
-            // Checking statuses
-            $response['success'] = $this->_checkFieldArray(
-                $response,
-                'PAYMENTINFO_%d_ACK',
-                'Success'
-            );
-            
-            return $response;
+        // Checking statuses
+        $response['success'] = $this->_checkFieldArray(
+            $response,
+            'PAYMENTINFO_%d_ACK',
+            'Success'
+        );
+
+        return $response;
+    }
+    
+    /**
+     * Checks payment result
+     * @param array $params paypal request params
+     * @return mixed saving data array or false
+     */
+    public function checkResult($token)
+    {
+        $requestData = $this->_loadRequest();
+        
+        if ($token == @$requestData['token']) {
+            $this->_clearRequest();
+            return $requestData['data'];
             
         } else {
-            throw new PaypalNVPResponseException($response);
+        	Yii::trace(sprintf('Tokens "%s" and "%s" are not equal', $token, @$requestData['token']), __CLASS__);
+            return false;
         }
     }
+
     
     # Adaptive payments #
     
@@ -210,6 +201,7 @@ class Paypal extends CApplicationComponent
      * @param array $params payment params
      * @return string payment key
      * @throws PaypalException
+     * @see pay
      */
     public function payUrl(array $params)
     {
@@ -232,6 +224,8 @@ class Paypal extends CApplicationComponent
      * Makes payment request
      * @param array $params Array with PayPal API params
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APPayAPI
+     * @link https://www.x.com/developers/paypal/documentation-tools/adaptive-payments/gs_AdaptivePayments Adaptive Payments API: Getting Started
+     * @link https://www.x.com/developers/paypal/documentation-tools/adaptive-payments/integration-guide/APIntro Introducing Adaptive Payments
      * @link https://www.x.com/developers/paypal/documentation-tools/api/pay-api-operation
      * @return string redirect url
      * @throws PaypalHTTPException
@@ -416,7 +410,7 @@ class Paypal extends CApplicationComponent
             'PWD'       => $this->password,
             'SIGNATURE' => $this->signature,
 			//'TOKEN'     => null,
-            'VERSION'   => '65.1',
+            'VERSION'   => '86',
         
             'LOCALECODE' => $this->localeCode,
         );
@@ -428,8 +422,13 @@ class Paypal extends CApplicationComponent
         $responseStr = $this->call($this->apiurl, $postStr);
         
         parse_str($responseStr, $response);
+        
+        if ($response['ACK'] == 'Success') {
+            return $response;
             
-        return $response;
+        } else {
+            throw new PaypalNVPResponseException($response);
+        }
     }
     
     public function callSVCS($name, $params = array())
@@ -493,7 +492,7 @@ class Paypal extends CApplicationComponent
             
             CURLOPT_HEADER => false,
             
-            //turning off the server and peer verification
+            // Turning off the server and peer verification
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             

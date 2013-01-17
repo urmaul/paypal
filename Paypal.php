@@ -31,6 +31,11 @@ class Paypal extends CApplicationComponent
      * @var string
      */
     public $localeCode = 'US';
+    /**
+     * Default country code
+     * @var string
+     */
+    public $countryCode = null;
     
     /**
      * Default permissions set
@@ -68,8 +73,10 @@ class Paypal extends CApplicationComponent
             $this->apiurl = "https://api-3t.$domain/nvp";
         if ($this->svcsUrl === null)
             $this->svcsUrl = "https://svcs.$domain/%s";
-        if ($this->weburl === null)
-            $this->weburl = "https://www.$domain/webscr";
+        if ($this->weburl === null) {
+            $country = isset($this->countryCode) ? $this->countryCode . '/' : '';
+            $this->weburl = "https://www.$domain/{$country}webscr";
+        }
         
         if ($this->cancelUrl === null && Yii::app()->hasComponent('request')) {
             $this->cancelUrl = Yii::app()->request->getBaseUrl(true);

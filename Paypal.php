@@ -10,9 +10,9 @@ class Paypal extends CApplicationComponent
     public $signature;
     public $appid = 'APP-80W284485P519543T';// APP-80W284485P519543T - global sandbox app id
     
-    public $apiurl  = 'https://api-3t.paypal.com/nvp';
-    public $svcsUrl = 'https://svcs.paypal.com/%s';
-    public $weburl  = 'https://www.paypal.com/webscr';
+    public $apiurl  = null;
+    public $svcsUrl = null;
+    public $weburl  = null;
     
     # Paypal default settings #
     
@@ -38,6 +38,8 @@ class Paypal extends CApplicationComponent
      */
     public $permissions;
     
+    public $cancelUrl = null;
+    
     /**
      * Sandbox mode
      * @var boolean
@@ -60,10 +62,17 @@ class Paypal extends CApplicationComponent
 
     public function init()
     {
-        if ( $this->sandbox ) {
-            $this->apiurl  = 'https://api-3t.sandbox.paypal.com/nvp';
-            $this->svcsUrl = 'https://svcs.sandbox.paypal.com/%s';
-            $this->weburl  = 'https://www.sandbox.paypal.com/webscr';
+        // Set up domains
+        $domain = ($this->sandbox ? 'sandbox.' : '') . 'paypal.com';
+        if ($this->apiurl === null)
+            $this->apiurl = "https://api-3t.$domain/nvp";
+        if ($this->svcsUrl === null)
+            $this->svcsUrl = "https://svcs.$domain/%s";
+        if ($this->weburl === null)
+            $this->weburl = "https://www.$domain/webscr";
+        
+        if ($this->cancelUrl === null && Yii::app()->hasComponent('request')) {
+            $this->cancelUrl = Yii::app()->request->getBaseUrl(true);
         }
     }
     
@@ -97,8 +106,10 @@ class Paypal extends CApplicationComponent
     public function setExpressCheckout(array $params)
     {
         $defParams = array(
+            'METHOD' => 'SetExpressCheckout',
             'REQCONFIRMSHIPPING' => 0,
             'NOSHIPPING' => 1,
+            'CANCELURL' => $this->createCancelUrl
         );
         $params = array_merge($defParams, $params);
         

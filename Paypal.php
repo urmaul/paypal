@@ -182,15 +182,15 @@ class Paypal extends CApplicationComponent
      */
     public function checkExpressCheckoutToken($token)
     {
-        $requestData = $this->_loadRequest();
+        $requestData = $this->_loadRequest($token);
         
-        if ($token === @$requestData['token']) {
-            Yii::trace(sprintf('Tokens are equal (%s)', $token), __CLASS__);
-            $this->_clearRequest();
-            return $requestData['data'];
+        if ($requestData !== null) {
+            Yii::trace(sprintf('Request with token %s found', $token), __CLASS__);
+            $this->_clearRequest($token);
+            return $requestData;
             
         } else {
-        	Yii::trace(sprintf('Tokens "%s" and "%s" are not equal', $token, @$requestData['token']), __CLASS__);
+        	Yii::trace(sprintf('Request with token %s not found', $token), __CLASS__);
             return false;
         }
     }
@@ -209,10 +209,12 @@ class Paypal extends CApplicationComponent
     public function finishExpressCheckoutPayment()
     {
         if (isset($_GET['token'], $_GET['PayerID'])) {
-            $token = $_GET['token'];
-            if ($this->checkExpressCheckoutToken($token) !== false) {
+            $token   = $_GET['token'];
+            $session = $this->checkExpressCheckoutToken($token);
+            if ($session !== false) {
                 $details = Yii::app()->paypal->getExpressCheckoutDetails($token);
                 $result = $this->doExpressCheckoutPayment($details);
+                $result['session'] = $session;
                 $result['details'] = $details;
                 return $result;
             }
@@ -663,27 +665,42 @@ class Paypal extends CApplicationComponent
      */
     private function _saveRequest($token)
     {
-        Yii::app()->session[$this->varName] = array(
-            'token' => $token,
-            'data' => $this->savingData,
-        );
+        $requests = Yii::app()->session[$this->varName];
+        $requests[$token] = $this->savingData;
+        Yii::app()->session[$this->varName] = $requests;
     }
     
     /**
      * Loads request data
+     * @param string $token request token
      * @return array request data
      */
-    private function _loadRequest()
+    private function _loadRequest($token)
     {
-        return Yii::app()->session[$this->varName];
+        if (isset(Yii::app()->session[$this->varName][$token]))
+            return Yii::app()->session[$this->varName][$token];
+        else
+            return null;
     }
     
     /**
      * Clears request data
+     * @param string $token request token
      */
-    private function _clearRequest()
+    private function _clearRequest($token)
     {
-        unset(Yii::app()->session[$this->varName]);
+        $requests = Yii::app()->session[$this->varName];
+        if (isset($requests[$token])) {
+            unset($requests[$token]);
+            if (empty($requests))
+                unset(Yii::app()->session[$this->varName]);
+            else
+                Yii::app()->session[$this->varName] = $requests;
+            
+            return true;
+            
+        } else
+            return false;
     }
     
 }

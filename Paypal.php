@@ -148,20 +148,26 @@ class Paypal extends CApplicationComponent
     
     /**
      * Makes express checkout payment
-     * @param array $details Checkout details returned by getExpressCheckoutDetails
+     * @param string|array $token payment token
+     * This paramener may be array - checkout details returned by getExpressCheckoutDetails
      * @link https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_DoExpressCheckoutPayment
      * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/gs_expresscheckout Express Checkout API Getting Started Guide
      * @link https://www.x.com/developers/paypal/documentation-tools/api/doexpresscheckoutpayment-api-operation-nvp DoExpressCheckoutPayment API Operation
-     * @return array payment result
-     * You need to check element 'success' (boolean) to ensure payment was successful.
+     * @return array payment response
+     * This function adds some additional parameters to response array:
+     * success (array) - true if all payments were successful.
+     * details (array) - getExpressCheckoutDetails result
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
  	 */
-    public function doExpressCheckoutPayment(array $details)
+    public function doExpressCheckoutPayment($token)
     {
-        $params = $details;
+        if (is_string($token))
+            $details = $this->getExpressCheckoutDetails($token);
+        else
+            $details = $token;
         
-        $response = $this->callNVP('DoExpressCheckoutPayment', $params);
+        $response = $this->callNVP('DoExpressCheckoutPayment', $details);
         
         // Checking statuses
         $response['success'] = $this->_checkFieldArray(
@@ -169,6 +175,8 @@ class Paypal extends CApplicationComponent
             'PAYMENTINFO_%d_ACK',
             'Success'
         );
+        
+        $response['details'] = $details;
 
         return $response;
     }
@@ -204,7 +212,7 @@ class Paypal extends CApplicationComponent
      * @return array|boolean payment result or false
      * When this method returns "false" - you can be sure that payment didn't started.
      * When this method returns array, you need to check element 'success' (boolean) to ensure payment was successful.
-     * Result array has element "detalis" with "GetExpressCheckoutDetails" result.
+     * Result array has element "details" with "GetExpressCheckoutDetails" result.
      */
     public function finishExpressCheckoutPayment()
     {
@@ -212,10 +220,8 @@ class Paypal extends CApplicationComponent
             $token   = $_GET['token'];
             $session = $this->checkExpressCheckoutToken($token);
             if ($session !== false) {
-                $details = Yii::app()->paypal->getExpressCheckoutDetails($token);
-                $result = $this->doExpressCheckoutPayment($details);
+                $result = $this->doExpressCheckoutPayment($token);
                 $result['session'] = $session;
-                $result['details'] = $details;
                 return $result;
             }
         }

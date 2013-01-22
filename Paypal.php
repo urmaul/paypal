@@ -229,6 +229,30 @@ class Paypal extends CApplicationComponent
         return false;
     }
     
+    
+    
+    /**
+     * Calls CreateRecurringPaymentsProfile API operation that creates a recurring payments profile.
+     * @param array $params request params
+     * @return array payment response
+     * @link https://cms.paypal.com/uk/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_CreateRecurringPayments CreateRecurringPaymentsProfile API Operation
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/createrecurringpaymentsprofile-api-operation-nvp CreateRecurringPaymentsProfile API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function createRecurringPaymentsProfile($params)
+    {
+        $params += array(
+            'METHOD' => 'CreateRecurringPaymentsProfile',
+            'CURRENCYCODE' => $this->currencyCode,
+            'CANCELURL' => $this->cancelUrl,
+        );
+        
+        $response = $this->callNVP('DoExpressCheckoutPayment', $params);
+        
+        return $response;
+    }
+    
     # Adaptive payments #
     
     /**

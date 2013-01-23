@@ -99,7 +99,7 @@ class Paypal extends CApplicationComponent
         return sprintf($this->apRedirectUrl, $this->weburl, '_ap-payment', $payKey);
     }
     
-    # Express checkout #
+    # Express Checkout #
     
     /**
      * Makes express checkout request
@@ -229,7 +229,11 @@ class Paypal extends CApplicationComponent
         return false;
     }
     
+    # Express Checkout - Recurring Payments #
     
+    /**
+     * @link https://www.x.com/developers/paypal/documentation-tools/express-checkout/integration-guide/ECRecurringPayments
+     */
     
     /**
      * Calls CreateRecurringPaymentsProfile API operation that creates a recurring payments profile.
@@ -243,14 +247,34 @@ class Paypal extends CApplicationComponent
     public function createRecurringPaymentsProfile($params)
     {
         $params += array(
-            'METHOD' => 'CreateRecurringPaymentsProfile',
+            'METHOD'       => 'CreateRecurringPaymentsProfile',
             'CURRENCYCODE' => $this->currencyCode,
-            'CANCELURL' => $this->cancelUrl,
+            'CANCELURL'    => $this->cancelUrl,
         );
         
         $response = $this->callNVP('DoExpressCheckoutPayment', $params);
         
         return $response;
+    }
+    
+    /**
+     * Calls GetRecurringPaymentsProfileDetails API operation that obtains information about a recurring payments profile. 
+     * @param string $profileId Paypal recurring payment profile id.
+     * @return array payment profile details
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/getrecurringpaymentsprofiledetails-api-operation-nvp GetRecurringPaymentsProfileDetails API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function getRecurringPaymentsProfileDetails($profileId)
+    {
+        $params = array(
+            'METHOD'    => 'GetRecurringPaymentsProfileDetails',
+            'PROFILEID' => $profileId,
+        );
+        
+        $details = $this->callNVP('GetRecurringPaymentsProfileDetails', $params);
+        
+        return $details;
     }
     
     # Adaptive payments #

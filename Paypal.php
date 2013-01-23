@@ -113,7 +113,6 @@ class Paypal extends CApplicationComponent
     public function setExpressCheckout(array $params)
     {
         $params += array(
-            'METHOD' => 'SetExpressCheckout',
             'ALLOWNOTE' => 0,
             'REQCONFIRMSHIPPING' => 0,
             'NOSHIPPING' => 1,
@@ -247,12 +246,11 @@ class Paypal extends CApplicationComponent
     public function createRecurringPaymentsProfile($params)
     {
         $params += array(
-            'METHOD'       => 'CreateRecurringPaymentsProfile',
             'CURRENCYCODE' => $this->currencyCode,
             'CANCELURL'    => $this->cancelUrl,
         );
         
-        $response = $this->callNVP('DoExpressCheckoutPayment', $params);
+        $response = $this->callNVP('CreateRecurringPaymentsProfile', $params);
         
         return $response;
     }
@@ -268,7 +266,6 @@ class Paypal extends CApplicationComponent
     public function getRecurringPaymentsProfileDetails($profileId)
     {
         $params = array(
-            'METHOD'    => 'GetRecurringPaymentsProfileDetails',
             'PROFILEID' => $profileId,
         );
         
@@ -294,7 +291,6 @@ class Paypal extends CApplicationComponent
     public function manageRecurringPaymentsProfileStatus($profileId, $action, $note = null)
     {
         $params = array(
-            'METHOD'    => 'GetRecurringPaymentsProfileDetails',
             'PROFILEID' => $profileId,
             'ACTION'    => $action,
         );
@@ -302,7 +298,7 @@ class Paypal extends CApplicationComponent
         if ($note !== null)
             $params['NOTE'] = $note;
         
-        $details = $this->callNVP('GetRecurringPaymentsProfileDetails', $params);
+        $details = $this->callNVP('ManageRecurringPaymentsProfileStatus', $params);
         
         return $details;
     }

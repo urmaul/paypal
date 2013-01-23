@@ -258,8 +258,8 @@ class Paypal extends CApplicationComponent
     }
     
     /**
-     * Calls GetRecurringPaymentsProfileDetails API operation that obtains information about a recurring payments profile. 
-     * @param string $profileId Paypal recurring payment profile id.
+     * Calls GetRecurringPaymentsProfileDetails API operation that obtains information about a recurring payments profile.
+     * @param string $profileId Paypal recurring payments profile ID returned in the CreateRecurringPaymentsProfile response.
      * @return array payment profile details
      * @link https://www.x.com/developers/paypal/documentation-tools/api/getrecurringpaymentsprofiledetails-api-operation-nvp GetRecurringPaymentsProfileDetails API Operation (NVP)
      * @throws PaypalHTTPException
@@ -275,6 +275,78 @@ class Paypal extends CApplicationComponent
         $details = $this->callNVP('GetRecurringPaymentsProfileDetails', $params);
         
         return $details;
+    }
+    
+    /**
+     * Calls ManageRecurringPaymentsProfileStatus API operation that peration cancels, suspends, or reactivates a recurring payments profile.
+     * @param string $profileId Paypal recurring payments profile ID returned in the CreateRecurringPaymentsProfile response.
+     * @param string $action The action to be performed to the recurring payments profile.
+     * Must be one of the following:
+     * * Cancel – Only profiles in Active or Suspended state can be canceled.
+     * * Suspend – Only profiles in Active state can be suspended.
+     * * Reactivate – Only profiles in a suspended state can be reactivated.
+     * @param string $note The reason for the change in status.
+     * @return array API response
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function manageRecurringPaymentsProfileStatus($profileId, $action, $note = null)
+    {
+        $params = array(
+            'METHOD'    => 'GetRecurringPaymentsProfileDetails',
+            'PROFILEID' => $profileId,
+            'ACTION'    => $action,
+        );
+        
+        if ($note !== null)
+            $params['NOTE'] = $note;
+        
+        $details = $this->callNVP('GetRecurringPaymentsProfileDetails', $params);
+        
+        return $details;
+    }
+    
+    /**
+     * Cancels a recurring payments profile.
+     * @param string $profileId Paypal recurring payments profile ID returned in the CreateRecurringPaymentsProfile response.
+     * @param string $note The reason for the change in status.
+     * @return array API response
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function cancelRecurringPaymentsProfile($profileId, $note = null)
+    {
+        return $this->manageRecurringPaymentsProfileStatus($profileId, 'Cancel', $note);
+    }
+    
+    /**
+     * Suspend a recurring payments profile.
+     * @param string $profileId Paypal recurring payments profile ID returned in the CreateRecurringPaymentsProfile response.
+     * @param string $note The reason for the change in status.
+     * @return array API response
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function suspendRecurringPaymentsProfile($profileId, $note = null)
+    {
+        return $this->manageRecurringPaymentsProfileStatus($profileId, 'Suspend', $note);
+    }
+    
+    /**
+     * Reactivates a recurring payments profile.
+     * @param string $profileId Paypal recurring payments profile ID returned in the CreateRecurringPaymentsProfile response.
+     * @param string $note The reason for the change in status.
+     * @return array API response
+     * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
+     * @throws PaypalHTTPException
+     * @throws PaypalResponseException
+ 	 */
+    public function reactivateRecurringPaymentsProfile($profileId, $note = null)
+    {
+        return $this->manageRecurringPaymentsProfileStatus($profileId, 'Reactivate', $note);
     }
     
     # Adaptive payments #

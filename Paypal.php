@@ -78,7 +78,7 @@ class Paypal extends CApplicationComponent
             $this->weburl = "https://www.$domain/{$country}webscr";
         }
         
-        if ($this->cancelUrl === null && Yii::app()->hasComponent('request')) {
+        if ($this->cancelUrl === null && Yii::app()->hasComponent('request') && isset($_SERVER['SERVER_NAME'])) {
             $this->cancelUrl = Yii::app()->request->getBaseUrl(true);
         }
     }

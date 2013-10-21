@@ -11,3 +11,11 @@ Paypal API Client for Yii framework.
 * Adaptive payments (+ refunds)
 * API permissions
 * Invoices
+
+## How to perform Express Checkout
+
+Express Checkout is a simplest Paypal payment tool. 
+
+1. Execute payment by calling ``$paymentUrl = setExpressCheckout(array $params)`` function. You need to pass [request parameters](https://developer.paypal.com/webapps/developer/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/) to it.
+2. Redirect user to ``paymentUrl``.
+3. Check payment result by calling ``$result = finishExpressCheckoutPayment()``. If ``$result`` is not false and ``$result['success']`` is true, payment is sent.

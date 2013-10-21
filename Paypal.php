@@ -109,7 +109,7 @@ class Paypal extends CApplicationComponent
      * @return string redirect url
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function setExpressCheckout(array $params)
     {
         $params += array(
@@ -136,7 +136,7 @@ class Paypal extends CApplicationComponent
      * @return array checkout details
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function getExpressCheckoutDetails($token)
     {
         $params = array(
@@ -159,7 +159,7 @@ class Paypal extends CApplicationComponent
      * details (array) - getExpressCheckoutDetails result
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function doExpressCheckoutPayment($token)
     {
         if (is_string($token))
@@ -198,7 +198,7 @@ class Paypal extends CApplicationComponent
             return $requestData;
             
         } else {
-        	Yii::trace(sprintf('Request with token %s not found', $token), __CLASS__);
+            Yii::trace(sprintf('Request with token %s not found', $token), __CLASS__);
             return false;
         }
     }
@@ -243,7 +243,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/createrecurringpaymentsprofile-api-operation-nvp CreateRecurringPaymentsProfile API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function createRecurringPaymentsProfile($params)
     {
         $params += array(
@@ -263,7 +263,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/getrecurringpaymentsprofiledetails-api-operation-nvp GetRecurringPaymentsProfileDetails API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function getRecurringPaymentsProfileDetails($profileId)
     {
         $params = array(
@@ -288,7 +288,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function manageRecurringPaymentsProfileStatus($profileId, $action, $note = null)
     {
         $params = array(
@@ -312,7 +312,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function cancelRecurringPaymentsProfile($profileId, $note = null)
     {
         return $this->manageRecurringPaymentsProfileStatus($profileId, 'Cancel', $note);
@@ -326,7 +326,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function suspendRecurringPaymentsProfile($profileId, $note = null)
     {
         return $this->manageRecurringPaymentsProfileStatus($profileId, 'Suspend', $note);
@@ -340,7 +340,7 @@ class Paypal extends CApplicationComponent
      * @link https://www.x.com/developers/paypal/documentation-tools/api/managerecurringpaymentsprofilestatus-api-operation-nvp ManageRecurringPaymentsProfileStatus API Operation (NVP)
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function reactivateRecurringPaymentsProfile($profileId, $note = null)
     {
         return $this->manageRecurringPaymentsProfileStatus($profileId, 'Reactivate', $note);
@@ -357,16 +357,16 @@ class Paypal extends CApplicationComponent
      */
     public function systemPay(array $params)
     {
-    	$params['sender.useCredentials'] = 'true';
-    	
-    	$response = $this->pay($params);
-    	
-    	if ($response['paymentExecStatus'] == 'COMPLETED') {
-    		return $response['payKey'];
-    		
-    	} else {
-    		throw new PaypalException('Payment not completed');
-    	}
+        $params['sender.useCredentials'] = 'true';
+        
+        $response = $this->pay($params);
+        
+        if ($response['paymentExecStatus'] == 'COMPLETED') {
+            return $response['payKey'];
+            
+        } else {
+            throw new PaypalException('Payment not completed');
+        }
     }
     
     /**
@@ -379,18 +379,18 @@ class Paypal extends CApplicationComponent
     public function payUrl(array $params)
     {
         $response = $this->pay($params);
-    	
-    	if ($response['paymentExecStatus'] == 'CREATED') {
-    	    $this->_saveRequest($response['payKey']);
-    	    
-    		return array(
+        
+        if ($response['paymentExecStatus'] == 'CREATED') {
+            $this->_saveRequest($response['payKey']);
+            
+            return array(
                 'payKey' => $response['payKey'],
                 'url' => $this->getPayLink($response['payKey']),
             );
-    		
-    	} else {
-    		throw new PaypalException(string('Payment status is %s (expecting "CREATED")', $response['paymentExecStatus']));
-    	}
+            
+        } else {
+            throw new PaypalException(string('Payment status is %s (expecting "CREATED")', $response['paymentExecStatus']));
+        }
     }
     
     /**
@@ -403,12 +403,12 @@ class Paypal extends CApplicationComponent
      * @return string redirect url
      * @throws PaypalHTTPException
      * @throws PaypalResponseException
- 	 */
+     */
     public function pay(array $params)
     {
         $defParams = array(
             'currencyCode' => $this->currencyCode,
-        	'actionType' => 'PAY',
+            'actionType' => 'PAY',
         );
         $params = array_merge($defParams, $params);
         
@@ -426,8 +426,8 @@ class Paypal extends CApplicationComponent
     public function paymentDetails($payKey)
     {
         $params = array(
-        	'currencyCode' => $this->currencyCode,
-        	'payKey' => $payKey,
+            'currencyCode' => $this->currencyCode,
+            'payKey' => $payKey,
         );
         
         $response = $this->callSVCS('AdaptivePayments/PaymentDetails', $params);
@@ -472,8 +472,8 @@ class Paypal extends CApplicationComponent
     public function requestPermissions($callback)
     {
         $params = array(
-        	'scope' => $this->permissions,
-        	'callback' => $callback,
+            'scope' => $this->permissions,
+            'callback' => $callback,
         );
         
         $response = $this->callSVCS('Permissions/RequestPermissions', $params);
@@ -494,8 +494,8 @@ class Paypal extends CApplicationComponent
     public function getAccessToken($requestToken, $verificationCode)
     {
         $params = array(
-        	'token' => $requestToken,
-        	'verifier' => $verificationCode,
+            'token' => $requestToken,
+            'verifier' => $verificationCode,
         );
         
         $response = $this->callSVCS('Permissions/GetAccessToken', $params);
@@ -558,7 +558,7 @@ class Paypal extends CApplicationComponent
         }
     }
     
-	public function checkInvoice($params)
+    public function checkInvoice($params)
     {
         $url = 'Invoice/GetInvoiceDetails';
                 
@@ -582,7 +582,7 @@ class Paypal extends CApplicationComponent
             'USER'      => $this->username,
             'PWD'       => $this->password,
             'SIGNATURE' => $this->signature,
-			//'TOKEN'     => null,
+            //'TOKEN'     => null,
             'VERSION'   => '86',
         
             'LOCALECODE' => $this->localeCode,

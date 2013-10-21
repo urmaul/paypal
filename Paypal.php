@@ -117,6 +117,7 @@ class Paypal extends CApplicationComponent
             'REQCONFIRMSHIPPING' => 0,
             'NOSHIPPING' => 1,
             'CANCELURL' => $this->cancelUrl,
+            'PAYMENTREQUEST_0_SELLERPAYPALACCOUNTID' => $this->email,
         );
         
         $response = $this->callNVP('SetExpressCheckout', $params);
